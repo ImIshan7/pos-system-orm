@@ -3,7 +3,7 @@ package controller;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXTextField;
-import db.DBConnection;
+
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.event.ActionEvent;
@@ -51,7 +51,7 @@ public class PlaceOrderFormController {
 
     public void initialize() throws SQLException, ClassNotFoundException {
 
-        tblOrderDetails.getColumns().get(0).setCellValueFactory(new PropertyValueFactory<>("code"));
+       /* tblOrderDetails.getColumns().get(0).setCellValueFactory(new PropertyValueFactory<>("code"));
         tblOrderDetails.getColumns().get(1).setCellValueFactory(new PropertyValueFactory<>("description"));
         tblOrderDetails.getColumns().get(2).setCellValueFactory(new PropertyValueFactory<>("qty"));
         tblOrderDetails.getColumns().get(3).setCellValueFactory(new PropertyValueFactory<>("unitPrice"));
@@ -92,7 +92,7 @@ public class PlaceOrderFormController {
 
             if (newValue != null) {
                 try {
-                    /*Search Customer*/
+                    *//*Search Customer*//*
                     Connection connection = DBConnection.getDbConnection().getConnection();
                     try {
                         if (!existCustomer(newValue + "")) {
@@ -128,7 +128,7 @@ public class PlaceOrderFormController {
 
             if (newItemCode != null) {
 
-                /*Find Item*/
+                *//*Find Item*//*
                 try {
                     if (!existItem(newItemCode + "")) {
 //                        throw new NotFoundException("There is no such item associated with the id " + code);
@@ -230,7 +230,7 @@ public class PlaceOrderFormController {
 
     private void loadAllItemCodes() {
         try {
-            /*Get all items*/
+            *//*Get all items*//*
             Connection connection = DBConnection.getDbConnection().getConnection();
             Statement stm = connection.createStatement();
             ResultSet rst = stm.executeQuery("SELECT * FROM Item");
@@ -330,13 +330,13 @@ public class PlaceOrderFormController {
     }
 
     public boolean saveOrder(String orderId, LocalDate orderDate, String customerId, List<OrderDetailDTO> orderDetails) {
-        /*Transaction*/
+        *//*Transaction*//*
         Connection connection = null;
         try {
             connection = DBConnection.getDbConnection().getConnection();
             PreparedStatement stm = connection.prepareStatement("SELECT oid FROM `Orders` WHERE oid=?");
             stm.setString(1, orderId);
-            /*if order id already exist*/
+            *//*if order id already exist*//*
             if (stm.executeQuery().next()) {
 
             }
@@ -411,7 +411,8 @@ public class PlaceOrderFormController {
             e.printStackTrace();
         }
         return null;
+    }*/
+
+
     }
-
-
 }

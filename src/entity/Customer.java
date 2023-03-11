@@ -8,32 +8,29 @@ import javax.persistence.*;
 @Table(name = "customer")
 public class Customer {
     @Id
-    @GenericGenerator(name = "String_based",strategy = "lk.ijse.pos.CustomerIDGenerator")
-    @GeneratedValue(generator = "String_based")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "customer_generator")
+    @SequenceGenerator(name="customer_generator", sequenceName = "customer_seq", allocationSize=1)
+    @Column(name = "id", updatable = false, nullable = false)
 
-    @Column(name = "Customer_Id",length = 50)
-    private String id;
 
-    @Column(name = "Customer_name")
+    private  int id;
     private String name;
-
-    @Column(name = "Customer_address")
     private String address;
 
     public Customer() {
     }
 
-    public Customer(String id, String name, String address) {
-        this.id = id;
-        this.name = name;
-        this.address = address;
+    public Customer(int id, String name, String address) {
+        this.setId(id);
+        this.setName(name);
+        this.setAddress(address);
     }
 
-    public String getId() {
+    public  int getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(int id) {
         this.id = id;
     }
 
@@ -56,10 +53,9 @@ public class Customer {
     @Override
     public String toString() {
         return "Customer{" +
-                "id='" + id + '\'' +
-                ", name='" + name + '\'' +
-                ", address='" + address + '\'' +
+                "id='" + getId() + '\'' +
+                ", name='" + getName() + '\'' +
+                ", address='" + getAddress() + '\'' +
                 '}';
     }
 }
-

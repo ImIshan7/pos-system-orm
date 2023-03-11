@@ -1,28 +1,25 @@
 package view.tdm;
 
-import java.io.Serializable;
 
-
-
-public class CustomerTM implements Comparable<CustomerTM> {
-    private String id;
+public class CustomerTM {
+    private int id;
     private String name;
     private String address;
 
-    public CustomerTM() {
+    public CustomerTM(Integer integer, String name, String address) {
     }
 
-    public CustomerTM(String id, String name, String address) {
+    public CustomerTM(int id, String name, String address) {
         this.id = id;
         this.name = name;
         this.address = address;
     }
 
-    public String getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(int id) {
         this.id = id;
     }
 
@@ -51,9 +48,4 @@ public class CustomerTM implements Comparable<CustomerTM> {
                 '}';
     }
 
-
-    @Override
-    public int compareTo(CustomerTM o) {
-        return id.compareTo(o.getId());
-    }
 }

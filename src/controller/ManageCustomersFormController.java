@@ -2,7 +2,7 @@ package controller;
 
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXTextField;
-import db.DBConnection;
+
 import entity.Customer;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -28,6 +28,7 @@ import java.net.URL;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 
@@ -42,6 +43,9 @@ public class ManageCustomersFormController {
     public TableView<CustomerTM> tblCustomers;
     public JFXButton btnAddNewCustomer;
 
+
+    CustomerRepository customerRepository;
+
     public void initialize() {
         tblCustomers.getColumns().get(0).setCellValueFactory(new PropertyValueFactory<>("id"));
         tblCustomers.getColumns().get(1).setCellValueFactory(new PropertyValueFactory<>("name"));
@@ -55,7 +59,7 @@ public class ManageCustomersFormController {
             btnSave.setDisable(newValue == null);
 
             if (newValue != null) {
-                txtCustomerId.setText(newValue.getId());
+                txtCustomerId.setText(String.valueOf(newValue.getId()));
                 txtCustomerName.setText(newValue.getName());
                 txtCustomerAddress.setText(newValue.getAddress());
 
@@ -70,8 +74,21 @@ public class ManageCustomersFormController {
     }
 
     private void loadAllCustomers() {
+
+
+        customerRepository=new CustomerRepository();
         tblCustomers.getItems().clear();
         /*Get all customers*/
+        ArrayList arrayList= customerRepository.allCustomers();
+        Iterator iterator=arrayList.iterator();
+
+        while (iterator.hasNext()) {
+            tblCustomers.getItems().add(new CustomerTM((Integer) arrayList.get(0), String.valueOf(arrayList.get(1)), String.valueOf(arrayList.get(2))));
+        }
+
+
+      /*  tblCustomers.getItems().clear();
+        *//*Get all customers*//*
         try {
             Connection connection = DBConnection.getDbConnection().getConnection();
             Statement stm = connection.createStatement();
@@ -84,7 +101,7 @@ public class ManageCustomersFormController {
             new Alert(Alert.AlertType.ERROR, e.getMessage()).show();
         } catch (ClassNotFoundException e) {
             new Alert(Alert.AlertType.ERROR, e.getMessage()).show();
-        }
+        }*/
 
 
     }
@@ -114,42 +131,135 @@ public class ManageCustomersFormController {
 
     public void btnAddNew_OnAction(ActionEvent actionEvent) {
 
+
+        customerRepository=new CustomerRepository();
+        txtCustomerId.setDisable(false);
+
+        txtCustomerName.setDisable(false);
+        txtCustomerAddress.setDisable(false);
+        txtCustomerId.clear();
+        System.out.println(String.valueOf(customerRepository.getNext()));
+
+        txtCustomerId.setText(String.valueOf(customerRepository.getNext()));
+        txtCustomerName.clear();
+        txtCustomerAddress.clear();
+        txtCustomerName.requestFocus();
+        btnSave.setDisable(false);
+        btnSave.setText("Save");
+        tblCustomers.getSelectionModel().clearSelection();
+
+/*
         Session session = SessionFactoryConfiguration.getInstance().getSession();
         Transaction transaction = session.beginTransaction();
-
         Customer customer = new Customer();
 
-        customer.setId(txtCustomerId.getText());
+        customer.setId((int) Long.parseLong(txtCustomerId.getText()));
         customer.setName(txtCustomerName.getText());
         customer.setAddress(txtCustomerAddress.getText());
 
         session.save(customer);
         transaction.commit();
-        session.close();
+        session.close();*/
 
-
-       /* txtCustomerId.setDisable(false);
+     /*  *//* txtCustomerId.setDisable(false);
         txtCustomerName.setDisable(false);
         txtCustomerAddress.setDisable(false);
         txtCustomerId.clear();
         txtCustomerId.setText(generateNewId());
         txtCustomerName.clear();
         txtCustomerAddress.clear();
-        txtCustomerName.requestFocus();*/
+        txtCustomerName.requestFocus();*//*
         btnSave.setDisable(false);
         btnSave.setText("Save");
-        tblCustomers.getSelectionModel().clearSelection();
+        tblCustomers.getSelectionModel().clearSelection();*/
     }
 
 
     public void btnSave_OnAction(ActionEvent actionEvent) {
 
+        int id = Integer.parseInt(txtCustomerId.getText());
+        String name = txtCustomerName.getText();
+        String address = txtCustomerAddress.getText();
 
+        if (!name.matches("[A-Za-z ]+")) {
+            new Alert(Alert.AlertType.ERROR, "Invalid name").show();
+            txtCustomerName.requestFocus();
+            return;
+        } else if (!address.matches(".{3,}")) {
+            new Alert(Alert.AlertType.ERROR, "Address should be at least 3 characters long").show();
+            txtCustomerAddress.requestFocus();
+            return;
+        }
+
+        if (btnSave.getText().equalsIgnoreCase("save")) {
+            /*Save Customer*/
+            try {
+                if (!existCustomer(id)) {
+                    new Alert(Alert.AlertType.ERROR, id + " already exists").show();
+                }
+               /* Connection connection = DBConnection.getDbConnection().getConnection();
+                PreparedStatement pstm = connection.prepareStatement("INSERT INTO Customer (id,name, address) VALUES (?,?,?)");
+                pstm.setString(1, id);
+                pstm.setString(2, name);
+                pstm.setString(3, address);
+                pstm.executeUpdate();*/
+                customerRepository=new CustomerRepository();
+                Customer customer=new Customer(id,name,address);
+                customerRepository.saveCustomer(customer);
+
+                tblCustomers.getItems().add(new CustomerTM(id, name, address));
+            } catch (SQLException e) {
+                new Alert(Alert.AlertType.ERROR, "Failed to save the customer " + e.getMessage()).show();
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+
+
+        } else {
+            /*Update customer*/
+
+            try {
+                if (!existCustomer(id)) {
+                    new Alert(Alert.AlertType.ERROR, "There is no such customer associated with the id " + id).show();
+                }
+                /*Connection connection = DBConnection.getDbConnection().getConnection();
+                PreparedStatement pstm = connection.prepareStatement("UPDATE Customer SET name=?, address=? WHERE id=?");
+                pstm.setString(1, name);
+                pstm.setString(2, address);
+                pstm.setString(3, id);
+                pstm.executeUpdate();*/
+                customerRepository=new CustomerRepository();
+                Customer customer=new Customer(id,name,address);
+                customerRepository.updateCustomer(customer);
+
+            } catch (SQLException e) {
+                new Alert(Alert.AlertType.ERROR, "Failed to update the customer " + id + e.getMessage()).show();
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+
+            CustomerTM selectedCustomer = tblCustomers.getSelectionModel().getSelectedItem();
+            selectedCustomer.setName(name);
+            selectedCustomer.setAddress(address);
+            tblCustomers.refresh();
+        }
+
+        btnAddNewCustomer.fire();
+
+
+/*
         CustomerRepository customerRepository = new CustomerRepository();
         Customer customer = getCustomerEntity();
-        customerRepository.saveCustomer(customer);
+        customerRepository.saveCustomer(customer);*/
 
+        /*Session session = SessionFactoryConfiguration.getInstance().getSession();
+        Transaction transaction = session.beginTransaction();
 
+        Customer customer = new Customer();
+
+        session.save(customer);
+        transaction.commit();
+        session.close();*/
 
        /* String id = txtCustomerId.getText();
         String name = txtCustomerName.getText();
@@ -217,7 +327,7 @@ public class ManageCustomersFormController {
 
         Customer customer = new Customer();
 
-        customer.setId(txtCustomerId.getText());
+        customer.setId((int) Long.parseLong(txtCustomerId.getText()));
         customer.setName(txtCustomerName.getText());
         customer.setAddress(txtCustomerAddress.getText());
 
@@ -225,15 +335,43 @@ public class ManageCustomersFormController {
     }
 
 
-    boolean existCustomer(String id) throws SQLException, ClassNotFoundException {
+    boolean existCustomer(int id) throws SQLException, ClassNotFoundException {
+
+        customerRepository=new CustomerRepository();
+        return customerRepository.existCustomer(id);
+      /*
         Connection connection = DBConnection.getDbConnection().getConnection();
         PreparedStatement pstm = connection.prepareStatement("SELECT id FROM Customer WHERE id=?");
         pstm.setString(1, id);
-        return pstm.executeQuery().next();
+        return pstm.executeQuery().next();*/
     }
 
 
     public void btnDelete_OnAction(ActionEvent actionEvent) {
+
+        /*Delete Customer*/
+        int id = Integer.parseInt(String.valueOf(tblCustomers.getSelectionModel().getSelectedItem().getId()));
+        try {
+            if (!existCustomer(id)) {
+                new Alert(Alert.AlertType.ERROR, "There is no such customer associated with the id " + id).show();
+            }
+
+            customerRepository=new CustomerRepository();
+
+            customerRepository.deleteCustomer(id);
+
+            tblCustomers.getItems().remove(tblCustomers.getSelectionModel().getSelectedItem());
+            tblCustomers.getSelectionModel().clearSelection();
+            initUI();
+
+        } catch (SQLException e) {
+            new Alert(Alert.AlertType.ERROR, "Failed to delete the customer " + id).show();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+/*
 
         Session session = SessionFactoryConfiguration.getInstance().getSession();
 
@@ -245,9 +383,7 @@ public class ManageCustomersFormController {
 
         transaction.commit();
         session.close();
-
-
-
+*/
         /*Delete Customer*//*
         String id = tblCustomers.getSelectionModel().getSelectedItem().getId();
         try {
@@ -267,10 +403,10 @@ public class ManageCustomersFormController {
             new Alert(Alert.AlertType.ERROR, "Failed to delete the customer " + id).show();
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
-        }*/
-    }
+        }}*/
 
-    private String generateNewId() {
+
+   /* private String generateNewId() {
         try {
             Connection connection = DBConnection.getDbConnection().getConnection();
             ResultSet rst = connection.createStatement().executeQuery("SELECT id FROM Customer ORDER BY id DESC LIMIT 1;");
@@ -302,6 +438,6 @@ public class ManageCustomersFormController {
         List<CustomerTM> tempCustomersList = new ArrayList<>(tblCustomers.getItems());
         Collections.sort(tempCustomersList);
         return tempCustomersList.get(tempCustomersList.size() - 1).getId();
-    }
+    }*/
 
 }

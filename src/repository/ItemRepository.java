@@ -1,23 +1,22 @@
 package repository;
 
-import entity.Customer;
+import entity.Item;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
-import org.hibernate.query.Query;
 import util.SessionFactoryConfiguration;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 
-public class CustomerRepository {
+public class ItemRepository {
 
     private final Session session;
 
-    public CustomerRepository() {
+    public ItemRepository() {
         session = SessionFactoryConfiguration.getInstance().getSession();
+
     }
 
-    public ArrayList allCustomers() {
+    public ArrayList allItems() {
         Transaction transaction = session.beginTransaction();
         try {
             ArrayList arrayList = (ArrayList) session.createQuery("from AppInitializer").list();
@@ -30,30 +29,26 @@ public class CustomerRepository {
             return null;
         }
 
-
     }
-
-    public int saveCustomer(Customer customer) {
+    public boolean deleteItem(int id){
         Transaction transaction = session.beginTransaction();
-
         try {
-            int id = (Integer) session.save(customer);
+            Item item=session.load(Item.class,id);
+
+            session.delete(item);
             transaction.commit();
-            return id;
+            return true;
         } catch (Exception ex) {
             transaction.rollback();
-            System.out.println(ex);
             ex.printStackTrace();
-            return -1;
+            return false;
         }
-
-
     }
 
-    public boolean updateCustomer(Customer customer){
+    public boolean updateItem(Item item){
         Transaction transaction = session.beginTransaction();
         try {
-            session.merge(customer);
+            session.update(item);
             transaction.commit();
             session.close();
             return true;
@@ -64,13 +59,10 @@ public class CustomerRepository {
             return false;
         }
     }
-
-    public boolean deleteCustomer(int id){
+    public boolean existItem(int id){
         Transaction transaction = session.beginTransaction();
         try {
-            Customer customer=session.load(Customer.class,id);
-
-            session.delete(customer);
+            session.get(Item.class,id);
             transaction.commit();
             return true;
         } catch (Exception ex) {
@@ -78,25 +70,5 @@ public class CustomerRepository {
             ex.printStackTrace();
             return false;
         }
-    }
-
-    public boolean existCustomer(int id){
-        Transaction transaction = session.beginTransaction();
-        try {
-            session.get(Customer.class,id);
-            transaction.commit();
-            return true;
-        } catch (Exception ex) {
-            transaction.rollback();
-            ex.printStackTrace();
-            return false;
-        }
-    }
-    public BigInteger getNext() {
-        Query query =
-                session.createSQLQuery("select customer_seq.next_val as num from customer_seq");
-
-        return (BigInteger) query.uniqueResult();
     }
 }
-
