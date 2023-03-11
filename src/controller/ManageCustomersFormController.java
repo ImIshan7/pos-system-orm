@@ -27,9 +27,8 @@ import java.io.Serializable;
 import java.net.URL;
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
-import java.util.List;
+
 
 
 
@@ -87,22 +86,6 @@ public class ManageCustomersFormController {
         }
 
 
-      /*  tblCustomers.getItems().clear();
-        *//*Get all customers*//*
-        try {
-            Connection connection = DBConnection.getDbConnection().getConnection();
-            Statement stm = connection.createStatement();
-            ResultSet rst = stm.executeQuery("SELECT * FROM Customer");
-
-            while (rst.next()) {
-                tblCustomers.getItems().add(new CustomerTM(rst.getString("id"), rst.getString("name"), rst.getString("address")));
-            }
-        } catch (SQLException e) {
-            new Alert(Alert.AlertType.ERROR, e.getMessage()).show();
-        } catch (ClassNotFoundException e) {
-            new Alert(Alert.AlertType.ERROR, e.getMessage()).show();
-        }*/
-
 
     }
 
@@ -131,7 +114,6 @@ public class ManageCustomersFormController {
 
     public void btnAddNew_OnAction(ActionEvent actionEvent) {
 
-
         customerRepository=new CustomerRepository();
         txtCustomerId.setDisable(false);
 
@@ -148,30 +130,7 @@ public class ManageCustomersFormController {
         btnSave.setText("Save");
         tblCustomers.getSelectionModel().clearSelection();
 
-/*
-        Session session = SessionFactoryConfiguration.getInstance().getSession();
-        Transaction transaction = session.beginTransaction();
-        Customer customer = new Customer();
 
-        customer.setId((int) Long.parseLong(txtCustomerId.getText()));
-        customer.setName(txtCustomerName.getText());
-        customer.setAddress(txtCustomerAddress.getText());
-
-        session.save(customer);
-        transaction.commit();
-        session.close();*/
-
-     /*  *//* txtCustomerId.setDisable(false);
-        txtCustomerName.setDisable(false);
-        txtCustomerAddress.setDisable(false);
-        txtCustomerId.clear();
-        txtCustomerId.setText(generateNewId());
-        txtCustomerName.clear();
-        txtCustomerAddress.clear();
-        txtCustomerName.requestFocus();*//*
-        btnSave.setDisable(false);
-        btnSave.setText("Save");
-        tblCustomers.getSelectionModel().clearSelection();*/
     }
 
 
@@ -197,12 +156,7 @@ public class ManageCustomersFormController {
                 if (!existCustomer(id)) {
                     new Alert(Alert.AlertType.ERROR, id + " already exists").show();
                 }
-               /* Connection connection = DBConnection.getDbConnection().getConnection();
-                PreparedStatement pstm = connection.prepareStatement("INSERT INTO Customer (id,name, address) VALUES (?,?,?)");
-                pstm.setString(1, id);
-                pstm.setString(2, name);
-                pstm.setString(3, address);
-                pstm.executeUpdate();*/
+
                 customerRepository=new CustomerRepository();
                 Customer customer=new Customer(id,name,address);
                 customerRepository.saveCustomer(customer);
@@ -222,12 +176,7 @@ public class ManageCustomersFormController {
                 if (!existCustomer(id)) {
                     new Alert(Alert.AlertType.ERROR, "There is no such customer associated with the id " + id).show();
                 }
-                /*Connection connection = DBConnection.getDbConnection().getConnection();
-                PreparedStatement pstm = connection.prepareStatement("UPDATE Customer SET name=?, address=? WHERE id=?");
-                pstm.setString(1, name);
-                pstm.setString(2, address);
-                pstm.setString(3, id);
-                pstm.executeUpdate();*/
+
                 customerRepository=new CustomerRepository();
                 Customer customer=new Customer(id,name,address);
                 customerRepository.updateCustomer(customer);
@@ -247,80 +196,7 @@ public class ManageCustomersFormController {
         btnAddNewCustomer.fire();
 
 
-/*
-        CustomerRepository customerRepository = new CustomerRepository();
-        Customer customer = getCustomerEntity();
-        customerRepository.saveCustomer(customer);*/
 
-        /*Session session = SessionFactoryConfiguration.getInstance().getSession();
-        Transaction transaction = session.beginTransaction();
-
-        Customer customer = new Customer();
-
-        session.save(customer);
-        transaction.commit();
-        session.close();*/
-
-       /* String id = txtCustomerId.getText();
-        String name = txtCustomerName.getText();
-        String address = txtCustomerAddress.getText();
-
-        if (!name.matches("[A-Za-z ]+")) {
-            new Alert(Alert.AlertType.ERROR, "Invalid name").show();
-            txtCustomerName.requestFocus();
-            return;
-        } else if (!address.matches(".{3,}")) {
-            new Alert(Alert.AlertType.ERROR, "Address should be at least 3 characters long").show();
-            txtCustomerAddress.requestFocus();
-            return;
-        }
-
-        if (btnSave.getText().equalsIgnoreCase("save")) {
-            *//*Save Customer*//*
-            try {
-                if (existCustomer(id)) {
-                    new Alert(Alert.AlertType.ERROR, id + " already exists").show();
-                }
-                Connection connection = DBConnection.getDbConnection().getConnection();
-                PreparedStatement pstm = connection.prepareStatement("INSERT INTO Customer (id,name, address) VALUES (?,?,?)");
-                pstm.setString(1, id);
-                pstm.setString(2, name);
-                pstm.setString(3, address);
-                pstm.executeUpdate();
-
-                tblCustomers.getItems().add(new CustomerTM(id, name, address));
-            } catch (SQLException e) {
-                new Alert(Alert.AlertType.ERROR, "Failed to save the customer " + e.getMessage()).show();
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-            }
-
-
-        } else {
-            *//*Update customer*//*
-            try {
-                if (!existCustomer(id)) {
-                    new Alert(Alert.AlertType.ERROR, "There is no such customer associated with the id " + id).show();
-                }
-                Connection connection = DBConnection.getDbConnection().getConnection();
-                PreparedStatement pstm = connection.prepareStatement("UPDATE Customer SET name=?, address=? WHERE id=?");
-                pstm.setString(1, name);
-                pstm.setString(2, address);
-                pstm.setString(3, id);
-                pstm.executeUpdate();
-            } catch (SQLException e) {
-                new Alert(Alert.AlertType.ERROR, "Failed to update the customer " + id + e.getMessage()).show();
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-            }
-
-            CustomerTM selectedCustomer = tblCustomers.getSelectionModel().getSelectedItem();
-            selectedCustomer.setName(name);
-            selectedCustomer.setAddress(address);
-            tblCustomers.refresh();
-        }
-
-        btnAddNewCustomer.fire();*/
     }
 
     private Customer getCustomerEntity() {
@@ -339,11 +215,7 @@ public class ManageCustomersFormController {
 
         customerRepository=new CustomerRepository();
         return customerRepository.existCustomer(id);
-      /*
-        Connection connection = DBConnection.getDbConnection().getConnection();
-        PreparedStatement pstm = connection.prepareStatement("SELECT id FROM Customer WHERE id=?");
-        pstm.setString(1, id);
-        return pstm.executeQuery().next();*/
+
     }
 
 
@@ -371,39 +243,7 @@ public class ManageCustomersFormController {
         }
     }
 
-/*
 
-        Session session = SessionFactoryConfiguration.getInstance().getSession();
-
-        Transaction transaction = session.beginTransaction();
-
-        Customer customer = session.get(Customer.class, (Serializable) txtCustomerId);
-
-        session.delete(customer);
-
-        transaction.commit();
-        session.close();
-*/
-        /*Delete Customer*//*
-        String id = tblCustomers.getSelectionModel().getSelectedItem().getId();
-        try {
-            if (!existCustomer(id)) {
-                new Alert(Alert.AlertType.ERROR, "There is no such customer associated with the id " + id).show();
-            }
-            Connection connection = DBConnection.getDbConnection().getConnection();
-            PreparedStatement pstm = connection.prepareStatement("DELETE FROM Customer WHERE id=?");
-            pstm.setString(1, id);
-            pstm.executeUpdate();
-
-            tblCustomers.getItems().remove(tblCustomers.getSelectionModel().getSelectedItem());
-            tblCustomers.getSelectionModel().clearSelection();
-            initUI();
-
-        } catch (SQLException e) {
-            new Alert(Alert.AlertType.ERROR, "Failed to delete the customer " + id).show();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }}*/
 
 
    /* private String generateNewId() {
